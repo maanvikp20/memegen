@@ -1,4 +1,4 @@
-let memes = [
+let memes = JSON.parse(localStorage.getItem("memes")) || [
   "https://i.imgflip.com/9gy2pv.jpg",
   "https://i.imgflip.com/9j3pvc.jpg",
   "https://cdn-useast1.kapwing.com/static/templates/jack-black-chicken-jockey-meme-hd-template-SaWoCmnF4VDAdFee-full.jpg",
@@ -21,7 +21,7 @@ let memes = [
   "https://i.ytimg.com/vi/WyXkjYeX0LE/sddefault.jpg",
 ];
 
-let quotes = [
+let quotes = JSON.parse(localStorage.getItem("quotes")) || [
   "Napoleon before invading Russia Napoleon After",
   "New game website is discovered schools: I have played these games before!",
   "Chicken Jockeyyy",
@@ -44,6 +44,14 @@ let quotes = [
   "Ain't that fantastic",
 ];
 
+let originalMemes = [...memes];
+let originalQuotes = [...quotes];
+
+function saveToStorage() {
+  localStorage.setItem("memes", JSON.stringify(memes));
+  localStorage.setItem("quotes", JSON.stringify(quotes));
+}
+
 function search(input) {
   let pattern = new RegExp(input, "i");
   if (input.match(/.?gif|.?jpe?g|.?png/i)) {
@@ -52,61 +60,151 @@ function search(input) {
       .filter((item) => pattern.test(item.value))
       .map((item) => item.index);
 
-    return indexes.map(index => memes[index]);
-
+    return indexes.map((index) => memes[index]);
   } else if (input.match(/\w+/)) {
     let indexes = quotes
       .map((quote, index) => ({ value: quote, index }))
       .filter((item) => pattern.test(item.value))
       .map((item) => item.index);
 
-    return indexes.map(index => memes[index]);
+    return indexes.map((index) => memes[index]);
   }
 }
 
-// Display all memes initially
-function displayMemes(memesToShow = memes) {
-  let html = '';
+function displayMemes(memesToShow = memes, quotesToShow = quotes) {
+  let html = "";
   if (memesToShow.length === 0) {
     html = '<div class="no-results">No memes found for your search.</div>';
   } else {
-    memesToShow.forEach(function(url, index) {
-      html += `<div class="meme-item">
+    memesToShow.forEach(function (url, index) {
+      const quote = quotesToShow[index] || "";
+      html += `<div class="meme-item" data-index="${index}">
                 <img src="${url}" alt="Meme ${index + 1}" loading="lazy">
+                <div class="meme-quote">${quote}</div>
+                <span class="delete-meme" title="Delete Meme" style="cursor:pointer;position:absolute;top:5px;right:5px;font-size:20px;">🗑️</span>
                </div>`;
     });
   }
-  $('.meme-display').html(html);
+  $(".meme-display").html(html);
 }
 
-$(document).ready(function() {
-  // Display all memes when page loads
+// Add this CSS to your stylesheet for positioning the trash icon:
+// .meme-item { position: relative; }
+
+$(document).ready(function () {
   displayMemes();
-  
-  // Handle search button click
-  $('#search-button').click(function() {
+
+  $("#show-all").click(function () {
+    displayMemes();
+  });
+
+  $("#search-button").click(function () {
     performSearch();
   });
 
-  // Handle real-time search as user types
-  $('#search').on('input', function() {
+  $("#add-meme").click(function () {
+    const url = $("#memeURL").val().trim();
+    const quote = $("#quoteText").val().trim();
+
+    if (url && quote) {
+      addMeme(url, quote);
+      $("#memeURL").val("");
+      $("#quoteText").val("");
+    } else {
+      alert("Please enter both URL and quote.");
+    }
+  });
+
+  $("#shuffle-content").click(function () {
+    shuffleContent();
+  });
+
+  $("#random-combo").click(function () {
+    randomCombo();
+  });
+
+  $("#revert").click(function () {
+    revert();
+  });
+
+  $("#search").on("input", function () {
     const searchTerm = $(this).val().trim();
-    if (searchTerm === '') {
-      displayMemes(); // Show all memes if search is empty
+    if (searchTerm === "") {
+      displayMemes();
     } else {
       performSearch();
     }
   });
 
+  // Delete meme handler (event delegation)
+  $(".meme-display").on("click", ".delete-meme", function () {
+    // Find the index in the current display
+    const parent = $(this).closest(".meme-item");
+    let index = parent.data("index");
+
+    // If filtered, find the actual index in the main array
+    const imgSrc = parent.find("img").attr("src");
+    index = memes.indexOf(imgSrc);
+
+    if (index > -1) {
+      memes.splice(index, 1);
+      quotes.splice(index, 1);
+      saveToStorage();
+      displayMemes(memes, quotes);
+    }
+  });
+
   function performSearch() {
-    const searchTerm = $('#search').val().trim();
-    
-    if (searchTerm === '') {
+    const searchTerm = $("#search").val().trim();
+
+    if (searchTerm === "") {
       displayMemes();
       return;
     }
 
     const results = search(searchTerm);
-    displayMemes(results);
+
+    let filteredQuotes = [];
+    if (results && results.length > 0) {
+      filteredQuotes = results.map((memeUrl) => {
+        const idx = memes.indexOf(memeUrl);
+        return idx !== -1 ? quotes[idx] : "";
+      });
+    }
+
+    displayMemes(results, filteredQuotes);
+  }
+
+  function addMeme(url, quote) {
+    memes.push(url);
+    quotes.push(quote);
+    originalMemes = [...memes];
+    originalQuotes = [...quotes];
+    saveToStorage();
+    displayMemes(memes, quotes);
+  }
+
+  function shuffleContent() {
+    const pairs = memes.map((meme, i) => ({ meme, quote: quotes[i] }));
+    const shuffledPairs = pairs.sort(() => Math.random() - 0.5);
+    const shuffledMemes = shuffledPairs.map((pair) => pair.meme);
+    const shuffledQuotes = shuffledPairs.map((pair) => pair.quote);
+    displayMemes(shuffledMemes, shuffledQuotes);
+    $(".quote-display").html(shuffledQuotes.map((q) => `<p>${q}</p>`).join(""));
+  }
+
+  function randomCombo() {
+    memes = memes.sort(() => Math.random() - 0.5);
+    quotes = quotes.sort(() => Math.random() - 0.5);
+    saveToStorage();
+    displayMemes(memes, quotes);
+  }
+
+  function revert() {
+    memes = [...originalMemes];
+    quotes = [...originalQuotes];
+    saveToStorage();
+    displayMemes(memes, quotes);
+    $(".quote-display").html("");
   }
 });

@@ -5,297 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Meme & Quote Matcher</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
-      body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        min-height: 100vh;
-        color: #333;
-      }
-
-      .container {
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 20px;
-      }
-
-      .header {
-        text-align: center;
-        margin-bottom: 40px;
-        color: white;
-      }
-
-      .header h1 {
-        font-size: 3rem;
-        font-weight: 700;
-        margin-bottom: 10px;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-      }
-
-      .header p {
-        font-size: 1.2rem;
-        opacity: 0.9;
-      }
-
-      .controls-section {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
-        border-radius: 20px;
-        padding: 30px;
-        margin-bottom: 30px;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-      }
-
-      .search-controls {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 15px;
-        margin-bottom: 30px;
-        flex-wrap: wrap;
-      }
-
-      .search-input {
-        padding: 15px 20px;
-        width: 400px;
-        max-width: 100%;
-        border: 2px solid #e1e5e9;
-        border-radius: 50px;
-        font-size: 16px;
-        outline: none;
-        transition: all 0.3s ease;
-        background: white;
-      }
-
-      .search-input:focus {
-        border-color: #667eea;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        transform: translateY(-2px);
-      }
-
-      .btn {
-        padding: 15px 25px;
-        border: none;
-        border-radius: 50px;
-        font-size: 16px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-      }
-
-      .btn-primary {
-        background: linear-gradient(45deg, #667eea, #764ba2);
-        color: white;
-        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-      }
-
-      .btn-primary:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
-      }
-
-      .btn-secondary {
-        background: linear-gradient(45deg, #f093fb, #f5576c);
-        color: white;
-        box-shadow: 0 4px 15px rgba(240, 147, 251, 0.3);
-      }
-
-      .btn-secondary:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 25px rgba(240, 147, 251, 0.4);
-      }
-
-      .btn-accent {
-        background: linear-gradient(45deg, #4facfe, #00f2fe);
-        color: white;
-        box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
-      }
-
-      .btn-accent:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 25px rgba(79, 172, 254, 0.4);
-      }
-
-      .form-section {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 15px;
-        margin-bottom: 20px;
-        flex-wrap: wrap;
-      }
-
-      .form-input {
-        padding: 12px 18px;
-        border: 2px solid #e1e5e9;
-        border-radius: 12px;
-        font-size: 14px;
-        min-width: 200px;
-        outline: none;
-        transition: all 0.3s ease;
-      }
-
-      .form-input:focus {
-        border-color: #667eea;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-      }
-
-      .actions {
-        display: flex;
-        justify-content: center;
-        gap: 15px;
-        flex-wrap: wrap;
-      }
-
-      .meme-display {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 25px;
-        margin-top: 40px;
-      }
-
-      .meme-item {
-        background: white;
-        border-radius: 20px;
-        padding: 20px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        overflow: hidden;
-      }
-
-      .meme-item:hover {
-        transform: translateY(-10px) scale(1.02);
-        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-      }
-
-      .meme-item img {
-        width: 100%;
-        max-height: 300px;
-        object-fit: contain;
-        border-radius: 15px;
-        transition: transform 0.3s ease;
-        background-color: #f8f9fa;
-      }
-
-      .meme-item:hover img {
-        transform: scale(1.05);
-      }
-
-      .meme-caption {
-        margin-top: 15px;
-        padding: 10px;
-        background: #f8f9fa;
-        border-radius: 10px;
-        font-style: italic;
-        color: #666;
-        text-align: center;
-      }
-
-      .no-results {
-        grid-column: 1 / -1;
-        text-align: center;
-        color: white;
-        font-size: 1.5rem;
-        padding: 60px 20px;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 20px;
-        backdrop-filter: blur(10px);
-      }
-
-      .loading {
-        grid-column: 1 / -1;
-        text-align: center;
-        color: white;
-        font-size: 1.2rem;
-        padding: 40px;
-      }
-
-      @media (max-width: 768px) {
-        .header h1 {
-          font-size: 2rem;
-        }
-
-        .search-controls,
-        .form-section,
-        .actions {
-          flex-direction: column;
-          align-items: stretch;
-        }
-
-        .search-input,
-        .form-input,
-        .btn {
-          width: 100%;
-          margin: 5px 0;
-        }
-
-        .controls-section {
-          padding: 20px;
-        }
-
-        .meme-display {
-          grid-template-columns: 1fr;
-        }
-      }
-
-      @media (max-width: 480px) {
-        .container {
-          padding: 10px;
-        }
-        
-        .header h1 {
-          font-size: 1.8rem;
-        }
-      }
-
-      /* Animations */
-      @keyframes fadeInUp {
-        from {
-          opacity: 0;
-          transform: translateY(30px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      .meme-item {
-        animation: fadeInUp 0.6s ease forwards;
-      }
-
-      .meme-item:nth-child(1) { animation-delay: 0.1s; }
-      .meme-item:nth-child(2) { animation-delay: 0.2s; }
-      .meme-item:nth-child(3) { animation-delay: 0.3s; }
-      .meme-item:nth-child(4) { animation-delay: 0.4s; }
-
-      /* Scrollbar styling */
-      ::-webkit-scrollbar {
-        width: 8px;
-      }
-
-      ::-webkit-scrollbar-track {
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 10px;
-      }
-
-      ::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.3);
-        border-radius: 10px;
-      }
-
-      ::-webkit-scrollbar-thumb:hover {
-        background: rgba(255, 255, 255, 0.5);
-      }
-    </style>
+    <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <div class="container">
@@ -306,20 +16,49 @@
 
       <div class="controls-section">
         <div class="search-controls">
-          <input type="text" id="search" class="search-input" placeholder="Search memes or quotes..." />
+          <input
+            type="text"
+            id="search"
+            class="search-input"
+            placeholder="Search memes or quotes..."
+          />
           <button id="search-button" class="btn btn-primary">🔍 Search</button>
         </div>
 
         <div class="form-section">
-          <input type="text" id="memeURL" class="form-input" placeholder="Meme URL" />
-          <input type="text" id="quoteText" class="form-input" placeholder="Quote" />
-          <button onclick="addContent()" class="btn btn-secondary">➕ Add</button>
+          <input
+            type="text"
+            id="memeURL"
+            class="form-input"
+            placeholder="Meme URL"
+          />
+          <input
+            type="text"
+            id="quoteText"
+            class="form-input"
+            placeholder="Quote"
+          />
+          <button id="add-meme" class="btn btn-secondary">
+            ➕ Add
+          </button>
         </div>
 
         <div class="actions">
-          <button onclick="shuffleContent()" class="btn btn-accent">🔀 Shuffle</button>
-          <button onclick="randomCombo()" class="btn btn-accent">🎲 Random Combo</button>
-          <button onclick="showAll()" class="btn btn-primary">📋 Show All</button>
+          <button id="shuffle-content" class="btn btn-accent">
+            🔀 Shuffle
+          </button>
+          <button id="random-combo" class="btn btn-accent">
+            🎲 Random Combo (DON'T PRESS)
+          </button>
+          <button id="show-all" class="btn btn-primary">
+            📋 Show All
+          </button>
+        </div>
+
+        <div class="actions-2">
+          <button id="revert" class="btn btn-primary">
+            🔄 Revert
+          </button>
         </div>
       </div>
 
