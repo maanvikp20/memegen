@@ -88,9 +88,6 @@ function displayMemes(memesToShow = memes, quotesToShow = quotes) {
   $(".meme-display").html(html);
 }
 
-// Add this CSS to your stylesheet for positioning the trash icon:
-// .meme-item { position: relative; }
-
 $(document).ready(function () {
   displayMemes();
 
@@ -136,13 +133,9 @@ $(document).ready(function () {
     }
   });
 
-  // Delete meme handler (event delegation)
   $(".meme-display").on("click", ".delete-meme", function () {
-    // Find the index in the current display
     const parent = $(this).closest(".meme-item");
     let index = parent.data("index");
-
-    // If filtered, find the actual index in the main array
     const imgSrc = parent.find("img").attr("src");
     index = memes.indexOf(imgSrc);
 
